@@ -329,6 +329,12 @@ function resetDraft() {
     document.getElementById('pause-btn').textContent = 'Pause';
     document.getElementById('pause-btn').classList.remove('pause-btn');
     
+    // Reset skip button
+    const skipBtn = document.getElementById('skip-btn');
+    skipBtn.disabled = false;
+    skipBtn.textContent = 'Skip Phase';
+    skipBtn.classList.remove('disabled-skip');
+    
     // Reset draft state
     draftPhases = currentMode === 'ranking' ? [...rankingPhases] : [...tournamentPhases];
     currentPhaseIndex = 0;
@@ -495,11 +501,21 @@ function updateSlot(team, type, number, champion) {
     const avatar = slot.querySelector('.champion-avatar');
     const name = slot.querySelector('.champion-name');
     
-    const avatarColor = generateChampionColor(champion.id);
-    avatar.innerHTML = generateChampionAvatar(champion);
-    avatar.style.background = avatarColor;
-    avatar.style.border = `2px solid ${avatarColor}`;
-    name.textContent = champion.name;
+    // Handle skipped slots
+    if (champion.id === -1) {
+        avatar.innerHTML = '<span style="color: #ffa500; font-weight: bold; font-size: 12px;">SKIP</span>';
+        avatar.style.background = '#ffa500';
+        avatar.style.border = '2px solid #ffa500';
+        name.textContent = 'SKIPPED';
+        slot.style.opacity = '0.7';
+    } else {
+        const avatarColor = generateChampionColor(champion.id);
+        avatar.innerHTML = generateChampionAvatar(champion);
+        avatar.style.background = avatarColor;
+        avatar.style.border = `2px solid ${avatarColor}`;
+        name.textContent = champion.name;
+        slot.style.opacity = '1';
+    }
     
     // Add completion animation
     slot.style.transform = 'scale(1.05)';
@@ -530,6 +546,34 @@ function skipPhase() {
     if (isPaused) {
         pauseResumeTimer(); // Resume if paused
     }
+    
+    // Check if we can skip this phase
+    if (currentPhaseIndex >= draftPhases.length) {
+        return;
+    }
+    
+    const currentPhase = draftPhases[currentPhaseIndex];
+    
+    // Only allow skipping during ban phases, not pick phases
+    if (currentPhase.type === 'pick') {
+        alert('You cannot skip during pick phases! You must select a champion to play.');
+        return;
+    }
+    
+    // When skipping, we need to mark the current phase as completed
+    // by adding a placeholder to the appropriate array
+    const skippedChampion = { id: -1, name: 'SKIPPED', role: 'N/A' };
+    
+    if (currentPhase.type === 'ban') {
+        if (currentPhase.team === 'blue') {
+            blueBans.push(skippedChampion);
+            updateSlot('blue', 'ban', blueBans.length, skippedChampion);
+        } else {
+            redBans.push(skippedChampion);
+            updateSlot('red', 'ban', redBans.length, skippedChampion);
+        }
+    }
+    
     nextPhase();
 }
 
@@ -541,9 +585,23 @@ function updatePhaseInfo() {
     const phase = draftPhases[currentPhaseIndex];
     const phaseElement = document.getElementById('current-phase');
     const descElement = document.getElementById('phase-description');
+    const skipBtn = document.getElementById('skip-btn');
     
     phaseElement.textContent = phase.phase;
     descElement.textContent = phase.description;
+    
+    // Update skip button based on phase type
+    if (phase.type === 'pick') {
+        skipBtn.disabled = true;
+        skipBtn.textContent = 'Must Pick';
+        skipBtn.title = 'You must select a champion during pick phases';
+        skipBtn.classList.add('disabled-skip');
+    } else {
+        skipBtn.disabled = false;
+        skipBtn.textContent = 'Skip Phase';
+        skipBtn.title = 'Skip this ban phase';
+        skipBtn.classList.remove('disabled-skip');
+    }
     
     // Highlight active slot
     const teamType = phase.team;
