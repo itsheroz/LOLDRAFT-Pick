@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League of Legends Draft-Pick Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">LoL Draft-Pick Simulator</h1>
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="setMode('ranking')">Ranking Game</button>
+                <button class="mode-btn" onclick="setMode('tournament')">Tournament Game</button>
+            </div>
+        </div>
+
+        <div class="draft-area">
+            <div class="team-side blue-side">
+                <div class="team-header">BLUE TEAM</div>
+                <div class="draft-slots" id="blue-slots">
+                    <!-- Draft slots will be generated here -->
+                </div>
+            </div>
+
+            <div class="draft-controls">
+                <div class="phase-info">
+                    <div class="current-phase" id="current-phase">Ban Phase 1</div>
+                    <div class="phase-description" id="phase-description">Blue team bans first</div>
+                </div>
+                
+                <div class="timer" id="timer">0:30</div>
+                
+                <div class="actions">
+                    <button class="action-btn" onclick="resetDraft()">Reset Draft</button>
+                    <button class="action-btn" onclick="pauseResumeTimer()" id="pause-btn">Pause</button>
+                    <button class="action-btn" onclick="skipPhase()" id="skip-btn">Skip Phase</button>
+                </div>
+
+                <div class="phase-info">
+                    <div style="font-size: 14px; opacity: 0.8;" id="mode-info">
+                        Ranking Mode: 5 bans → 5 picks → 5 picks
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-side red-side">
+                <div class="team-header">RED TEAM</div>
+                <div class="draft-slots" id="red-slots">
+                    <!-- Draft slots will be generated here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="champion-grid">
+            <div class="grid-header">Champion Selection</div>
+            <input type="text" class="search-box" placeholder="Search champions..." id="champion-search" oninput="filterChampions()">
+            <div class="champions-container" id="champions-container">
+                <!-- Champions will be generated here -->
+            </div>
+        </div>
+
+        <div class="draft-summary" id="draft-summary" style="display: none;">
+            <div class="summary-header">Draft Complete!</div>
+            <div class="summary-teams">
+                <div class="summary-team summary-blue">
+                    <div class="summary-section">
+                        <div class="summary-title">Blue Team Bans</div>
+                        <div class="summary-list" id="blue-bans-summary"></div>
+                    </div>
+                    <div class="summary-section">
+                        <div class="summary-title">Blue Team Picks</div>
+                        <div class="summary-list" id="blue-picks-summary"></div>
+                    </div>
+                </div>
+                <div class="summary-team summary-red">
+                    <div class="summary-section">
+                        <div class="summary-title">Red Team Bans</div>
+                        <div class="summary-list" id="red-bans-summary"></div>
+                    </div>
+                    <div class="summary-section">
+                        <div class="summary-title">Red Team Picks</div>
+                        <div class="summary-list" id="red-picks-summary"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
